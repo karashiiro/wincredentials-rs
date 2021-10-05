@@ -1,7 +1,8 @@
 mod credential;
 
-use std::ffi::{c_void, CStr, CString};
-use windows::IntoParam;
+use std::ffi::c_void;
+use windows::*;
+use widestring::U16CString;
 
 use bindings::Windows::Win32::{
     Foundation::*,
@@ -12,22 +13,19 @@ use bindings::Windows::Win32::{
 const NO_FLAGS: u32 = 0;
 const GENERIC_CREDENTIAL: u32 = 1;
 
-pub fn read_credential<'a>(target: impl IntoParam<'a, PWSTR>) -> Option<credential::Credential> {
+pub fn read_credential<'a>(target: impl IntoParam<'a, PWSTR>) -> Result<credential::Credential> {
     let cred: *mut *mut CREDENTIALW = std::ptr::null_mut();
-    let result = unsafe { CredReadW(target, GENERIC_CREDENTIAL, NO_FLAGS, cred) };
-    if result == false {
-        None
-    } else {
-        let credential = credential::Credential{
-            secret: unsafe { CStr::from_ptr((**cred).CredentialBlob as *const i8).to_str().unwrap().to_string() },
-        };
-        unsafe { CredFree(cred as *const c_void) };
+    unsafe { CredReadW(target, GENERIC_CREDENTIAL, NO_FLAGS, cred).ok()? };
 
-        Some(credential)
-    }
+    let credential = credential::Credential{
+        secret: unsafe { U16CString::from_ptr_str((**cred).CredentialBlob as *const u16).to_string_lossy() },
+    };
+    unsafe { CredFree(cred as *const c_void) };
+
+    Ok(credential)
 }
 
-pub fn write_credential(target: &str, val: credential::Credential) {
+pub fn write_credential(target: &str, val: credential::Credential) -> Result<()> {
     let filetime = Box::new(FILETIME {
         dwLowDateTime: 0,
         dwHighDateTime: 0,
@@ -37,15 +35,17 @@ pub fn write_credential(target: &str, val: credential::Credential) {
 
     let secret_len = val.secret.len();
 
-    let target_cstr = CString::new(target).unwrap();
-    let secret_cstr = CString::new(val.secret).unwrap();
+    let target_cstr = U16CString::from_str(target).unwrap();
+    let secret_cstr = U16CString::from_str(val.secret).unwrap();
+    let user_cstr = U16CString::from_str("").unwrap();
 
     let target_ptr = target_cstr.as_ptr();
     let secret_ptr = secret_cstr.as_ptr();
+    let user_ptr = user_cstr.as_ptr();
 
     let cred = CREDENTIALW{
-        Flags: CRED_FLAGS(0),
-        Type: CRED_TYPE(0),
+        Flags: CRED_FLAGS(NO_FLAGS),
+        Type: CRED_TYPE(GENERIC_CREDENTIAL),
         TargetName: PWSTR(target_ptr as *mut u16),
         Comment: PWSTR(std::ptr::null_mut() as *mut u16),
         LastWritten: unsafe { *filetime },
@@ -55,13 +55,55 @@ pub fn write_credential(target: &str, val: credential::Credential) {
         AttributeCount: 0,
         Attributes: std::ptr::null_mut(),
         TargetAlias: PWSTR(std::ptr::null_mut() as *mut u16),
-        UserName: PWSTR(std::ptr::null_mut() as *mut u16),
+        UserName: PWSTR(user_ptr as *mut u16),
     };
 
-    unsafe { CredWriteW(&cred, NO_FLAGS) };
+    unsafe { CredWriteW(&cred, NO_FLAGS).ok()? };
     unsafe { drop(Box::from_raw(filetime)) }
+
+    Ok(())
 }
 
-pub fn delete_credential<'a>(target: impl IntoParam<'a, PWSTR>) {
-    unsafe { CredDeleteW(target, GENERIC_CREDENTIAL, NO_FLAGS) };
+pub fn delete_credential<'a>(target: impl IntoParam<'a, PWSTR>) -> Result<()> {
+    unsafe { CredDeleteW(target, GENERIC_CREDENTIAL, NO_FLAGS).ok()? };
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const TEST_TARGET: &str = "WINCREDENTIALS_RS_TEST";
+
+    #[test]
+    fn write_credential_is_ok() {
+        let _ = delete_credential(TEST_TARGET);
+
+        let res = write_credential(TEST_TARGET, credential::Credential{
+            secret: "test".to_owned(),
+        });
+        assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+    }
+
+    #[test]
+    fn read_credential_is_err_when_unset() {
+        let _ = delete_credential(TEST_TARGET);
+
+        let res = read_credential(TEST_TARGET);
+        assert!(res.is_err())
+    }
+
+    #[test]
+    fn read_credential_is_ok_when_set() {
+        let _ = delete_credential(TEST_TARGET);
+
+        let res = write_credential(TEST_TARGET, credential::Credential{
+            secret: "test".to_owned(),
+        });
+        assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+
+        let res = read_credential(TEST_TARGET);
+        assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+    }
 }
