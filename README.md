@@ -6,7 +6,7 @@ A wrapper around the Win32 API credential management functions. Currently only s
 
 ## Example
 ```rs
-using wincredentials::*;
+use wincredentials::*;
 
 fn main() {
   let _ = write_credential("test_target", credential::Credential{
