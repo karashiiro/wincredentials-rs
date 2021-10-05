@@ -22,6 +22,8 @@ fn write_credential_is_ok_when_unset() {
         },
     );
     assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+
+    let _ = delete_credential(target);
 }
 
 #[test]
@@ -44,6 +46,8 @@ fn write_credential_is_ok_when_set() {
         },
     );
     assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+
+    let _ = delete_credential(target);
 }
 
 #[test]
@@ -53,7 +57,9 @@ fn read_credential_is_err_when_unset() {
     let _ = delete_credential(target);
 
     let res = read_credential(target);
-    assert!(res.is_err())
+    assert!(res.is_err());
+
+    let _ = delete_credential(target);
 }
 
 #[test]
@@ -75,6 +81,8 @@ fn read_credential_is_ok_when_set() {
     assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
 
     assert_eq!(res.unwrap().secret, secret);
+
+    let _ = delete_credential(target);
 }
 
 #[test]
@@ -83,7 +91,9 @@ fn delete_credential_is_err_when_unset() {
 
     let _ = delete_credential(target);
     let res = delete_credential(target);
-    assert!(res.is_err())
+    assert!(res.is_err());
+
+    let _ = delete_credential(target);
 }
 
 #[test]
@@ -103,4 +113,6 @@ fn delete_credential_is_ok_when_set() {
 
     let res = delete_credential(target);
     assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+
+    let _ = delete_credential(target);
 }
