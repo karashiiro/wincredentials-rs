@@ -17,11 +17,12 @@ pub fn read_credential(target: &str) -> Result<credential::Credential> {
     let target_cstr = U16CString::from_str(target).unwrap();
     let target_ptr = target_cstr.as_ptr();
 
-    let cred: *mut *mut CREDENTIALW = std::ptr::null_mut();
-    unsafe { CredReadW(PWSTR(target_ptr as *mut u16), GENERIC_CREDENTIAL, NO_FLAGS, cred).ok()? };
+    let mut cred: *mut CREDENTIALW = std::ptr::null_mut();
+    let cred_ptr: *mut *mut CREDENTIALW = &mut cred;
+    unsafe { CredReadW(PWSTR(target_ptr as *mut u16), GENERIC_CREDENTIAL, NO_FLAGS, cred_ptr).ok()? };
 
     let credential = credential::Credential{
-        secret: unsafe { U16CString::from_ptr_str((**cred).CredentialBlob as *const u16).to_string_lossy() },
+        secret: unsafe { U16CString::from_ptr_str((*cred).CredentialBlob as *const u16).to_string_lossy() },
     };
     unsafe { CredFree(cred as *const c_void) };
 
@@ -70,7 +71,7 @@ pub fn write_credential(target: &str, val: credential::Credential) -> Result<()>
 pub fn delete_credential(target: &str) -> Result<()> {
     let target_cstr = U16CString::from_str(target).unwrap();
     let target_ptr = target_cstr.as_ptr();
-    unsafe { CredDeleteW(target, GENERIC_CREDENTIAL, NO_FLAGS).ok()? };
+    unsafe { CredDeleteW(PWSTR(target_ptr as *mut u16), GENERIC_CREDENTIAL, NO_FLAGS).ok()? };
 
     Ok(())
 }
