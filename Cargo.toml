@@ -11,5 +11,5 @@ keywords = ["credentials", "windows"]
 
 [dependencies]
 windows = "0.21.1"
-bindings = { path = "bindings" }
+wincredentials-bindings = { path = "bindings", version = "0.1.0" }
 widestring = "0.4.3"

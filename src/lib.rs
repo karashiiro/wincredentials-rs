@@ -4,7 +4,7 @@ use std::ffi::c_void;
 use widestring::{U16CString, U16String};
 use windows::*;
 
-use bindings::Windows::Win32::{
+use wincredentials_bindings::Windows::Win32::{
     Foundation::*, Security::Credentials::*, System::SystemInformation::*,
 };
 
