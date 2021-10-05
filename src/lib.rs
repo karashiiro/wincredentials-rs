@@ -1,13 +1,11 @@
 mod credential;
 
 use std::ffi::c_void;
-use windows::*;
 use widestring::{U16CString, U16String};
+use windows::*;
 
 use bindings::Windows::Win32::{
-    Foundation::*,
-    Security::Credentials::*,
-    System::SystemInformation::*,
+    Foundation::*, Security::Credentials::*, System::SystemInformation::*,
 };
 
 const NO_FLAGS: u32 = 0;
@@ -24,14 +22,28 @@ pub fn read_credential(target: &str) -> Result<credential::Credential> {
     // Allocate a pointer for the credential and read it
     let mut cred: *mut CREDENTIALW = std::ptr::null_mut();
     let cred_ptr: *mut *mut CREDENTIALW = &mut cred;
-    unsafe { CredReadW(PWSTR(target_ptr as *mut u16), GENERIC_CREDENTIAL, NO_FLAGS, cred_ptr).ok()? };
+    unsafe {
+        CredReadW(
+            PWSTR(target_ptr as *mut u16),
+            GENERIC_CREDENTIAL,
+            NO_FLAGS,
+            cred_ptr,
+        )
+        .ok()?
+    };
 
     // Read from the credential and convert it into something rustier
-    let credential = credential::Credential{
+    let credential = credential::Credential {
         // U16String takes the number of elements, not the number of bytes
         //
         // hence the division
-        secret: unsafe { U16String::from_ptr((*cred).CredentialBlob as *const u16, (*cred).CredentialBlobSize as usize / 2).to_string_lossy() },
+        secret: unsafe {
+            U16String::from_ptr(
+                (*cred).CredentialBlob as *const u16,
+                (*cred).CredentialBlobSize as usize / 2,
+            )
+            .to_string_lossy()
+        },
     };
 
     // Free the credential we read
@@ -63,7 +75,7 @@ pub fn write_credential(target: &str, val: credential::Credential) -> Result<()>
     let user_ptr = user_cstr.as_ptr();
 
     // Build our credential object
-    let cred = CREDENTIALW{
+    let cred = CREDENTIALW {
         Flags: CRED_FLAGS(NO_FLAGS),
         Type: CRED_TYPE(GENERIC_CREDENTIAL),
         TargetName: PWSTR(target_ptr as *mut u16),
@@ -117,9 +129,12 @@ mod tests {
 
         let _ = delete_credential(target);
 
-        let res = write_credential(target, credential::Credential{
-            secret: secret.to_owned(),
-        });
+        let res = write_credential(
+            target,
+            credential::Credential {
+                secret: secret.to_owned(),
+            },
+        );
         assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
     }
 
@@ -129,13 +144,19 @@ mod tests {
         let secret = "testy";
 
         let _ = delete_credential(target);
-        let _ = write_credential(target, credential::Credential{
-            secret: secret.to_owned(),
-        });
+        let _ = write_credential(
+            target,
+            credential::Credential {
+                secret: secret.to_owned(),
+            },
+        );
 
-        let res = write_credential(target, credential::Credential{
-            secret: secret.to_owned(),
-        });
+        let res = write_credential(
+            target,
+            credential::Credential {
+                secret: secret.to_owned(),
+            },
+        );
         assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
     }
 
@@ -156,9 +177,12 @@ mod tests {
 
         let _ = delete_credential(target);
 
-        let res = write_credential(target, credential::Credential{
-            secret: secret.to_owned(),
-        });
+        let res = write_credential(
+            target,
+            credential::Credential {
+                secret: secret.to_owned(),
+            },
+        );
         assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
 
         let res = read_credential(target);
@@ -183,9 +207,12 @@ mod tests {
 
         let _ = delete_credential(target);
 
-        let res = write_credential(target, credential::Credential{
-            secret: secret.to_owned(),
-        });
+        let res = write_credential(
+            target,
+            credential::Credential {
+                secret: secret.to_owned(),
+            },
+        );
         assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
 
         let res = delete_credential(target);

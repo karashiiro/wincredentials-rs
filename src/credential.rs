@@ -1,3 +1,3 @@
 pub struct Credential {
-  pub secret: String,
+    pub secret: String,
 }
