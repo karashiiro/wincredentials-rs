@@ -13,9 +13,12 @@ use bindings::Windows::Win32::{
 const NO_FLAGS: u32 = 0;
 const GENERIC_CREDENTIAL: u32 = 1;
 
-pub fn read_credential<'a>(target: impl IntoParam<'a, PWSTR>) -> Result<credential::Credential> {
+pub fn read_credential(target: &str) -> Result<credential::Credential> {
+    let target_cstr = U16CString::from_str(target).unwrap();
+    let target_ptr = target_cstr.as_ptr();
+
     let cred: *mut *mut CREDENTIALW = std::ptr::null_mut();
-    unsafe { CredReadW(target, GENERIC_CREDENTIAL, NO_FLAGS, cred).ok()? };
+    unsafe { CredReadW(PWSTR(target_ptr as *mut u16), GENERIC_CREDENTIAL, NO_FLAGS, cred).ok()? };
 
     let credential = credential::Credential{
         secret: unsafe { U16CString::from_ptr_str((**cred).CredentialBlob as *const u16).to_string_lossy() },
@@ -64,7 +67,9 @@ pub fn write_credential(target: &str, val: credential::Credential) -> Result<()>
     Ok(())
 }
 
-pub fn delete_credential<'a>(target: impl IntoParam<'a, PWSTR>) -> Result<()> {
+pub fn delete_credential(target: &str) -> Result<()> {
+    let target_cstr = U16CString::from_str(target).unwrap();
+    let target_ptr = target_cstr.as_ptr();
     unsafe { CredDeleteW(target, GENERIC_CREDENTIAL, NO_FLAGS).ok()? };
 
     Ok(())
