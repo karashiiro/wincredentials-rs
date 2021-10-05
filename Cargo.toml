@@ -1,7 +1,11 @@
 [package]
 name = "wincredentials"
+description = "A wrapper around the Win32 API credential management functions."
 version = "0.1.0"
 edition = "2018"
+repository = "https://github.com/karashiiro/wincredentials-rs"
+license = "MIT"
+keywords = ["credentials", "windows"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
