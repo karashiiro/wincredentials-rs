@@ -12,9 +12,9 @@ use wincredentials_bindings::Windows::Win32::{
 const NO_FLAGS: u32 = 0;
 const GENERIC_CREDENTIAL: u32 = 1;
 
-// Reads the credential with the specified target name. If the operation
-// fails for any reason, including no credential existing, the result
-// will resolve to an error.
+/// Reads the credential with the specified target name. If the operation
+/// fails for any reason, including no credential existing, the result
+/// will resolve to an error.
 pub fn read_credential(target: &str) -> Result<credential::Credential> {
     // Convert the target to UTF16
     let target_cstr = U16CString::from_str(target).unwrap();
@@ -53,8 +53,8 @@ pub fn read_credential(target: &str) -> Result<credential::Credential> {
     Ok(credential)
 }
 
-// Writes out the credential with the specified target name. If the operation
-// fails for any reason, the result will resolve to an error.
+/// Writes out the credential with the specified target name. If the operation
+/// fails for any reason, the result will resolve to an error.
 pub fn write_credential(target: &str, val: credential::Credential) -> Result<()> {
     // Get the current time as a Windows file time
     let filetime = Box::new(FILETIME {
@@ -100,8 +100,8 @@ pub fn write_credential(target: &str, val: credential::Credential) -> Result<()>
     Ok(())
 }
 
-// Deletes the credential with the specified target name. If the operation
-// fails for any reason, the result will resolve to an error.
+/// Deletes the credential with the specified target name. If the operation
+/// fails for any reason, the result will resolve to an error.
 pub fn delete_credential(target: &str) -> Result<()> {
     // Convert the target to UTF16
     let target_cstr = U16CString::from_str(target).unwrap();
