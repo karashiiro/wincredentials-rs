@@ -1,4 +1,4 @@
-mod credential;
+pub mod credential;
 
 use std::ffi::c_void;
 use widestring::{U16CString, U16String};
