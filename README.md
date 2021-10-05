@@ -1,3 +1,5 @@
+![Crates.io](https://img.shields.io/crates/v/wincredentials)
+
 # wincredentials-rs
 A wrapper around the Win32 API credential management functions. Currently only supports generic credentials.
 
