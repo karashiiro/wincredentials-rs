@@ -1,0 +1,106 @@
+#![cfg(test)]
+
+use super::*;
+
+// We use different target names in each test to allow them to run in parallel
+// without interfering with each other.
+
+// The secret is deliberately chosen to have an odd number of elements because we
+// divide its length at some point.
+
+#[test]
+fn write_credential_is_ok_when_unset() {
+    let target = "WINCREDENTIALS_RS_TEST_1";
+    let secret = "testy";
+
+    let _ = delete_credential(target);
+
+    let res = write_credential(
+        target,
+        credential::Credential {
+            secret: secret.to_owned(),
+        },
+    );
+    assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+}
+
+#[test]
+fn write_credential_is_ok_when_set() {
+    let target = "WINCREDENTIALS_RS_TEST_2";
+    let secret = "testy";
+
+    let _ = delete_credential(target);
+    let _ = write_credential(
+        target,
+        credential::Credential {
+            secret: secret.to_owned(),
+        },
+    );
+
+    let res = write_credential(
+        target,
+        credential::Credential {
+            secret: secret.to_owned(),
+        },
+    );
+    assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+}
+
+#[test]
+fn read_credential_is_err_when_unset() {
+    let target = "WINCREDENTIALS_RS_TEST_3";
+
+    let _ = delete_credential(target);
+
+    let res = read_credential(target);
+    assert!(res.is_err())
+}
+
+#[test]
+fn read_credential_is_ok_when_set() {
+    let target = "WINCREDENTIALS_RS_TEST_4";
+    let secret = "testy";
+
+    let _ = delete_credential(target);
+
+    let res = write_credential(
+        target,
+        credential::Credential {
+            secret: secret.to_owned(),
+        },
+    );
+    assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+
+    let res = read_credential(target);
+    assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+
+    assert_eq!(res.unwrap().secret, secret);
+}
+
+#[test]
+fn delete_credential_is_err_when_unset() {
+    let target = "WINCREDENTIALS_RS_TEST_5";
+
+    let _ = delete_credential(target);
+    let res = delete_credential(target);
+    assert!(res.is_err())
+}
+
+#[test]
+fn delete_credential_is_ok_when_set() {
+    let target = "WINCREDENTIALS_RS_TEST_6";
+    let secret = "testy";
+
+    let _ = delete_credential(target);
+
+    let res = write_credential(
+        target,
+        credential::Credential {
+            secret: secret.to_owned(),
+        },
+    );
+    assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+
+    let res = delete_credential(target);
+    assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+}
