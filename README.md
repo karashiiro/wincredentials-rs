@@ -10,11 +10,13 @@ use wincredentials::*;
 
 fn main() {
   let _ = write_credential("test_target", credential::Credential{
+    username: "username".to_owned(),
     secret: "test".to_owned(),
   });
   
-  let cred = read_credential("test_target");
-  println!(cred.unwrap().secret);
+  let cred = read_credential("test_target").unwrap();
+  println!(cred.username);
+  println!(cred.secret);
   
   let _ = delete_credential("test_target");
 }
