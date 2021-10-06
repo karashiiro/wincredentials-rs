@@ -34,17 +34,18 @@ pub fn read_credential(target: &str) -> Result<credential::Credential> {
     };
 
     // Read from the credential and convert it into something rustier
-    let credential = credential::Credential {
-        // U16String takes the number of elements, not the number of bytes
-        //
-        // hence the division
-        secret: unsafe {
-            U16String::from_ptr(
+    let credential = unsafe {
+        credential::Credential {
+            username: U16CString::from_ptr_str((*cred).UserName.0 as *const u16).to_string_lossy(),
+            // U16String takes the number of elements, not the number of bytes
+            //
+            // hence the division
+            secret: U16String::from_ptr(
                 (*cred).CredentialBlob as *const u16,
                 (*cred).CredentialBlobSize as usize / 2,
             )
-            .to_string_lossy()
-        },
+            .to_string_lossy(),
+        }
     };
 
     // Free the credential we read
@@ -69,7 +70,7 @@ pub fn write_credential(target: &str, val: credential::Credential) -> Result<()>
 
     let target_cstr = U16CString::from_str(target).unwrap();
     let secret_cstr = U16CString::from_str(val.secret).unwrap();
-    let user_cstr = U16CString::from_str("").unwrap();
+    let user_cstr = U16CString::from_str(val.username).unwrap();
 
     let target_ptr = target_cstr.as_ptr();
     let secret_ptr = secret_cstr.as_ptr();

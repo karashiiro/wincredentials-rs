@@ -11,6 +11,7 @@ use super::*;
 #[test]
 fn write_credential_is_ok_when_unset() {
     let target = "WINCREDENTIALS_RS_TEST_1";
+    let username = "testuser";
     let secret = "testy";
 
     let _ = delete_credential(target);
@@ -18,6 +19,7 @@ fn write_credential_is_ok_when_unset() {
     let res = write_credential(
         target,
         credential::Credential {
+            username: username.to_owned(),
             secret: secret.to_owned(),
         },
     );
@@ -29,12 +31,14 @@ fn write_credential_is_ok_when_unset() {
 #[test]
 fn write_credential_is_ok_when_set() {
     let target = "WINCREDENTIALS_RS_TEST_2";
+    let username = "testuser";
     let secret = "testy";
 
     let _ = delete_credential(target);
     let _ = write_credential(
         target,
         credential::Credential {
+            username: username.to_owned(),
             secret: secret.to_owned(),
         },
     );
@@ -42,6 +46,7 @@ fn write_credential_is_ok_when_set() {
     let res = write_credential(
         target,
         credential::Credential {
+            username: username.to_owned(),
             secret: secret.to_owned(),
         },
     );
@@ -65,6 +70,7 @@ fn read_credential_is_err_when_unset() {
 #[test]
 fn read_credential_is_ok_when_set() {
     let target = "WINCREDENTIALS_RS_TEST_4";
+    let username = "testuser";
     let secret = "testy";
 
     let _ = delete_credential(target);
@@ -72,6 +78,7 @@ fn read_credential_is_ok_when_set() {
     let res = write_credential(
         target,
         credential::Credential {
+            username: username.to_owned(),
             secret: secret.to_owned(),
         },
     );
@@ -99,6 +106,7 @@ fn delete_credential_is_err_when_unset() {
 #[test]
 fn delete_credential_is_ok_when_set() {
     let target = "WINCREDENTIALS_RS_TEST_6";
+    let username = "testuser";
     let secret = "testy";
 
     let _ = delete_credential(target);
@@ -106,6 +114,7 @@ fn delete_credential_is_ok_when_set() {
     let res = write_credential(
         target,
         credential::Credential {
+            username: username.to_owned(),
             secret: secret.to_owned(),
         },
     );
