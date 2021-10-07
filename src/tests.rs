@@ -87,7 +87,9 @@ fn read_credential_is_ok_when_set() {
     let res = read_credential(target);
     assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
 
-    assert_eq!(res.unwrap().secret, secret);
+    let res = res.unwrap();
+    assert_eq!(res.username, username);
+    assert_eq!(res.secret, secret);
 
     let _ = delete_credential(target);
 }
