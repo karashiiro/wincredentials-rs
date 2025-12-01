@@ -3,7 +3,7 @@ mod tests;
 
 use std::ffi::c_void;
 use widestring::{U16CString, U16String};
-use windows::*;
+//use windows::*;
 
 use wincredentials_bindings::Windows::Win32::{
     Foundation::*, Security::Credentials::*, System::SystemInformation::*,
@@ -15,7 +15,7 @@ const GENERIC_CREDENTIAL: u32 = 1;
 /// Reads the credential with the specified target name. If the operation
 /// fails for any reason, including no credential existing, the result
 /// will resolve to an error.
-pub fn read_credential(target: &str) -> Result<credential::Credential> {
+pub fn read_credential(target: &str) -> Result<credential::Credential, Box<dyn std::error::Error>> {
     // Convert the target to UTF16
     let target_cstr = U16CString::from_str(target).unwrap();
     let target_ptr = target_cstr.as_ptr();
@@ -56,7 +56,7 @@ pub fn read_credential(target: &str) -> Result<credential::Credential> {
 
 /// Writes out the credential with the specified target name. If the operation
 /// fails for any reason, the result will resolve to an error.
-pub fn write_credential(target: &str, val: credential::Credential) -> Result<()> {
+pub fn write_credential(target: &str, val: credential::Credential) -> Result<(), Box<dyn std::error::Error>> {
     // Get the current time as a Windows file time
     let filetime = Box::new(FILETIME {
         dwLowDateTime: 0,
@@ -103,7 +103,7 @@ pub fn write_credential(target: &str, val: credential::Credential) -> Result<()>
 
 /// Deletes the credential with the specified target name. If the operation
 /// fails for any reason, the result will resolve to an error.
-pub fn delete_credential(target: &str) -> Result<()> {
+pub fn delete_credential(target: &str) -> Result<(), Box<dyn std::error::Error>> {
     // Convert the target to UTF16
     let target_cstr = U16CString::from_str(target).unwrap();
     let target_ptr = target_cstr.as_ptr();
