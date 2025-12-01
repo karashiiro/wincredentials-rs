@@ -2,7 +2,7 @@
 name = "wincredentials"
 description = "A wrapper around the Win32 API credential management functions."
 version = "0.2.0"
-edition = "2018"
+edition = "2024"
 repository = "https://github.com/karashiiro/wincredentials-rs"
 license = "MIT"
 keywords = ["credentials", "windows"]
