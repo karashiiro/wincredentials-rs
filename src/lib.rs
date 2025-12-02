@@ -35,7 +35,11 @@ pub fn read_credential(target: &str) -> Result<credential::Credential, Box<dyn s
     // Read from the credential and convert it into something rustier
     let credential = unsafe {
         credential::Credential {
-            username: U16CString::from_ptr_str((*cred).UserName.0 as *const u16).to_string_lossy(),
+            username: if (*cred).UserName.0.is_null() {
+                "".to_string()
+            } else {
+                U16CString::from_ptr_str((*cred).UserName.0 as *const u16).to_string_lossy()
+            },
             // U16String takes the number of elements, not the number of bytes
             //
             // hence the division
