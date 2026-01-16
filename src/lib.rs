@@ -98,8 +98,6 @@ pub fn write_credential(
         CredWriteW(&cred, NO_FLAGS.0)?
     };
 
-    // Free the file time object we got
-    //unsafe { drop(Box::from_raw(filetime)) }
     Ok(())
 }
 

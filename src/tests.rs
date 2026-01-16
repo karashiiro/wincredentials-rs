@@ -131,7 +131,6 @@ fn delete_credential_is_ok_when_set() {
 #[test]
 fn write_credential_is_ok_without_username() {
     let target = "WINCREDENTIALS_RS_TEST_7";
-    let _username: Option<&str> = None;
     let secret = "testy";
 
     let _ = delete_credential(target);
@@ -151,7 +150,6 @@ fn write_credential_is_ok_without_username() {
 #[test]
 fn read_credential_is_ok_without_username() {
     let target = "WINCREDENTIALS_RS_TEST_8";
-    let _username: Option<&str> = None;
     let secret = "testy";
 
     let _ = delete_credential(target);
