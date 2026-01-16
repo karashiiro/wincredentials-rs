@@ -1,7 +1,7 @@
 [package]
 name = "wincredentials"
 description = "A wrapper around the Win32 API credential management functions."
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 repository = "https://github.com/karashiiro/wincredentials-rs"
 license = "MIT"
