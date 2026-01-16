@@ -2,7 +2,7 @@
 name = "wincredentials"
 description = "A wrapper around the Win32 API credential management functions."
 version = "0.2.0"
-edition = "2018"
+edition = "2024"
 repository = "https://github.com/karashiiro/wincredentials-rs"
 license = "MIT"
 keywords = ["credentials", "windows"]
@@ -10,6 +10,5 @@ keywords = ["credentials", "windows"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-windows = "0.21.1"
-wincredentials-bindings = { path = "bindings", version = "0.1.0" }
-widestring = "0.4.3"
+windows = {version = "^0.62.2", features = ["Win32_Security_Credentials", "Win32_System_SystemInformation"]}
+widestring = "^1.2.1"

@@ -127,3 +127,50 @@ fn delete_credential_is_ok_when_set() {
 
     let _ = delete_credential(target);
 }
+
+#[test]
+fn write_credential_is_ok_without_username() {
+    let target = "WINCREDENTIALS_RS_TEST_7";
+    let _username: Option<&str> = None;
+    let secret = "testy";
+
+    let _ = delete_credential(target);
+
+    let res = write_credential(
+        target,
+        credential::Credential {
+            username: "".to_owned(),
+            secret: secret.to_owned(),
+        },
+    );
+    assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+
+    let _ = delete_credential(target);
+}
+
+#[test]
+fn read_credential_is_ok_without_username() {
+    let target = "WINCREDENTIALS_RS_TEST_8";
+    let _username: Option<&str> = None;
+    let secret = "testy";
+
+    let _ = delete_credential(target);
+
+    let res = write_credential(
+        target,
+        credential::Credential {
+            username: "".to_owned(),
+            secret: secret.to_owned(),
+        },
+    );
+    assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+
+    let res = read_credential(target);
+    assert!(res.is_ok(), "{}", res.err().unwrap().to_string());
+
+    let res = res.unwrap();
+    assert_eq!(res.username, "");
+    assert_eq!(res.secret, secret);
+
+    let _ = delete_credential(target);
+}
